@@ -1,0 +1,23 @@
+------------
+   order
+------------
+1. keywords
+2. separator
+3. operator
+4. id
+5. integer
+6. real
+7. illegal
+
+-----------
+  regex
+-----------
+integer = d+
+real = d+.d+
+id = l(l|d|_)*
+
+
+
+char separators[] = {'(',')',';',',','{','}'};
+vector<string> operators = {"<=",">=", "!=", ">" , "<", "==", "+", "++", "-", "--", "*", "=", "/"};
+vector<string> keywords = {"while","endwhile","if"};

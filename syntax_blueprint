@@ -1,0 +1,35 @@
+<Rat24S> -> $ <Opt Function Definitions> $ <Opt Declaration List> $ <Statement List> $
+<Opt Function Definitions> -> <Function Definitions> | <Empty>
+<Function Definitions> -> <Function> <Function Definitions>'
+<Function Definitions>' -> <Function Definitions> | ϵ
+<Function> -> function <Identifier> ( <Opt Parameter List> ) <Opt Declaration List> <Body>
+<Opt Parameter List> -> <Parameter List> | <Empty>
+<Parameter List> -> <Parameter> <Parameter List>'
+<Parameter List>' -> , <Parameter List> | ϵ
+<Qualifier> -> integer | boolean | real
+<Body> -> { <Statement List> }
+<Opt Declaration List> -> <Declaration List> | <Empty>
+<Declaration List> -> <Declaration>; <Declaration List>'
+<Declaration List>' -> <Declaration List> | ϵ
+<Declaration> -> <Qualifier> <IDs>
+<IDs> -> <Identifier> <IDs>'
+<IDs>' -> , <IDs> | ϵ
+<Statement List> -> <Statement> <Statement List>'
+<Statement List>' -> <Statement List> | ϵ
+<Statement> -> <Compound> | <Assign> | <If> | <Return> | <Print> | <Scan> | <While>
+<Compound> -> { <Statement List> }
+<Assign> -> <Identifier> = <Expression> ;
+<If> -> if ( <Condition> ) <Statement> endif | if ( <Condition> ) <Statement> else <Statement> endif
+<Return> -> return; | return <Expression>;
+<Print> -> print(<Expression>);
+<Scan> -> scan ( <IDs> );
+<While> -> while ( <Condition> ) <Statement> endwhile
+<Condition> -> <Expression> <Relop> <Expression>
+<Relop> -> == | != | > | < | <= | =>
+<Expression> -> <Term> <Expression>'
+<Term> -> <Factor> <Term>'
+<Expression>' -> + <Term> <Expression>' | - <Term> <Expression>' | ϵ
+<Term>' -> * <Factor> <Term>' | / <Factor> <Term>' | ϵ
+<Factor> -> - <Primary> | <Primary>
+<Primary> -> <Identifier> | <Integer> | <Identifier> ( <IDs> ) | ( <Expression> ) | <Real> | true | false
+<Empty> -> ϵ
