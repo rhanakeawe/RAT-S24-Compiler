@@ -13,11 +13,14 @@ def Rat24S(number):
     if switch == True:
         print("<Rat24S> -> $ <Opt Function Definitions> $ <Opt Declaration List> $ <Statement List> $")
     if token_list[number][1] == '$':
-        if Opt_Function_Def(number+1):
-            if token_list[number+2][1] == '$':
-                if Opt_Declaration_List(number+3):
-                    if token_list[number+4][1] == '$':
-                        if Statement_List(number+5):
+        number = number + 1
+        if Opt_Function_Def(number):
+            if token_list[number][1] == '$':
+                number = number + 1
+                if Opt_Declaration_List(number):
+                    if token_list[number][1] == '$':
+                        number = number + 1
+                        if Statement_List(number):
                             print("Syntax Good!")
                         else:
                             print("Failed at Statement_List")
@@ -71,7 +74,6 @@ def Function_Def_Dash(number):
         return True
     else:
         #return False
-        number = number + 1
         return True
 
 def FFunction(number):
@@ -79,12 +81,16 @@ def FFunction(number):
     if switch == True:
         print("<Function> -> function <Identifier> ( <Opt Parameter List> ) <Opt Declaration List> <Body>")
     if token_list[number][1] == 'function':
-        if token_list[number+1][0] == 'id':
-            if token_list[number+2][1] == '(':
-                if Opt_Parameter_List(number+3):
-                    if token_list[number+4][1] == ')':
-                        if Opt_Parameter_List(number+5):
-                            if Opt_Parameter_List(number+6):
+        number = number + 1
+        if token_list[number][0] == 'id':
+            number = number + 1
+            if token_list[number][1] == '(':
+                number = number + 1
+                if Opt_Parameter_List(number):
+                    if token_list[number][1] == ')':
+                        number = number + 1
+                        if Opt_Parameter_List(number):
+                            if Opt_Parameter_List(number):
                                 return True
                             else:
                                 return False
@@ -117,7 +123,7 @@ def Parameter_List(number):
     if switch == True:
         print("<Parameter List> -> <Parameter> <Parameter List>'")
     if PParameter(number):
-        if Parameter_List_Dash(number+1):
+        if Parameter_List_Dash(number):
             return True
         else:
             return False
@@ -129,7 +135,7 @@ def PParameter(number):
     if switch == True:
         print("<Parameter> -> <IDs> <Qualifier>")
     if IDs(number):
-        if Qualifier(number+1):
+        if Qualifier(number):
             return True
         else:
             return False
@@ -142,13 +148,13 @@ def Parameter_List_Dash(number):
     if switch == True:
         print("<Parameter List>' -> , <Parameter List> | ϵ")
     if token_list[number][1] == ',':
-        if Parameter_List(number+1):
+        number = number + 1
+        if Parameter_List(number):
             return True
         else:
             return False
     else:
         #return False
-        number = number + 1
         return True
 
 def Qualifier(number):
@@ -156,8 +162,10 @@ def Qualifier(number):
     if switch == True:
         print("<Qualifier> -> integer | boolean | real")
     if (token_list[number][0] == 'integer' or token_list[number][0] == "real"):
+        number = number + 1
         return True
     elif (token_list[number][1] == 'false' or token_list[number][1] == 'true'):
+        number = number + 1
         return True
     else:
         return False
@@ -167,8 +175,9 @@ def Body(number):
     if switch == True:
         print("<Body> -> { <Statement List> }")
     if token_list[number][1] == '{':
-        if Statement_List(number+1):
-            if token_list[number+2] == '}':
+        if Statement_List(number):
+            if token_list[number] == '}':
+                number = number + 1
                 return True
             else:
                 return False
@@ -193,8 +202,9 @@ def Declaration_List(number):
     if switch == True:
         print("<Declaration List> -> <Declaration>; <Declaration List>'")
     if Declaration(number):
-        if token_list[number+1][1] == ';':
-            if Declaration_List_Dash(number+2):
+        if token_list[number][1] == ';':
+            number = number + 1
+            if Declaration_List_Dash(number):
                 return True
             else:
                 return False
@@ -212,7 +222,6 @@ def Declaration_List_Dash(number):
         return True
     else:
         #return False
-        number = number + 1
         return True
 
 def Declaration(number):
@@ -220,7 +229,7 @@ def Declaration(number):
     if switch == True:
         print("<Declaration> -> <Qualifier> <IDs>")
     if Qualifier(number):
-        if IDs(number+1):
+        if IDs(number):
             return True
         else:
             return False
@@ -232,7 +241,8 @@ def IDs(number):
     if switch == True:
         print("<IDs> -> <Identifier> <IDs>'")
     if token_list[number][0] == 'id':
-        if IDs_Dash(number+1):
+        number = number + 1
+        if IDs_Dash(number):
             return True
         else:
             return False
@@ -245,13 +255,13 @@ def IDs_Dash(number):
     if switch == True:
         print("<IDs>' -> , <IDs> | ϵ")
     if token_list[number][1] == ',':
-        if IDs(number+1):
+        if IDs(number):
+            number = number + 1
             return True
         else:
             return False
     else:
         #return False
-        number = number + 1
         return True
 
 def Statement_List(number):
@@ -259,7 +269,7 @@ def Statement_List(number):
     if switch == True:
         print("<Statement List> -> <Statement> <Statement List>'")
     if Statement(number):
-        if Statement_List_Dash(number+1):
+        if Statement_List_Dash(number):
             return True
         else:
             return False
@@ -275,7 +285,6 @@ def Statement_List_Dash(number):
         return True
     else:
         #return False
-        number = number + 1
         return True
 
 def Statement(number):
@@ -292,8 +301,10 @@ def Compound(number):
     if switch == True:
         print("<Compound> -> { <Statement List> }")
     if token_list[number][1] == '{':
-        if Statement_List(number+1):
-            if token_list[number+2] == '}':
+        number = number + 1
+        if Statement_List(number):
+            if token_list[number] == '}':
+                number = number + 1
                 return True
             else:
                 return False
@@ -307,9 +318,12 @@ def Assign(number):
     if switch == True:
         print("<Assign> -> <Identifier> = <Expression> ;")
     if token_list[number][0] == 'id':
-        if token_list[number+1][1] == '=':
-            if Expression(number+2):
-                if token_list[number+3] == ';':
+        number = number + 1
+        if token_list[number][1] == '=':
+            number = number + 1
+            if Expression(number):
+                if token_list[number] == ';':
+                    number = number + 1
                     return True
                 else:
                     return False
@@ -325,15 +339,21 @@ def If(number):
     if switch == True:
         print("<If> -> if ( <Condition> ) <Statement> endif | if ( <Condition> ) <Statement> else <Statement> endif")
     if token_list[number][1] == 'if':
-        if token_list[number+1][1] == '(':
-            if CCondition(number+2):
-                if token_list[number+3][1] == ')':
-                    if Statement(number+4):
-                        if token_list[number+5][1] == 'endif':
+        number = number + 1
+        if token_list[number][1] == '(':
+            number = number + 1
+            if CCondition(number):
+                if token_list[number][1] == ')':
+                    number = number + 1
+                    if Statement(number):
+                        if token_list[number][1] == 'endif':
+                            number = number + 1
                             return True
-                        elif token_list[number+5][1] == 'else':
-                            if Statement(number+6):
-                                if token_list[number+5][1] == 'endif':
+                        elif token_list[number][1] == 'else':
+                            number = number + 1
+                            if Statement(number):
+                                if token_list[number][1] == 'endif':
+                                    number = number + 1
                                     return True
                                 else:
                                     return False
@@ -357,10 +377,13 @@ def Return(number):
     if switch == True:
         print("<Return> -> return; | return <Expression>;")
     if token_list[number][1] == 'return':
-        if token_list[number+1][1] == ';':
+        number = number + 1
+        if token_list[number][1] == ';':
+            number = number + 1
             return True
-        elif Expression(number+1):
-            if token_list[number+2][1] == ';':
+        elif Expression(number):
+            if token_list[number][1] == ';':
+                number = number + 1
                 return True
             else:
                 return False
@@ -374,10 +397,14 @@ def PPrint(number):
     if switch == True:
         print("<Print> -> print ( <Expression> );")
     if token_list[number][1] == 'print':
-        if token_list[number+1][1] == '(':
-            if Expression(number+2):
-                if token_list[number+3][1] == ')':
-                    if token_list[number+4][1] == ';':
+        number = number + 1
+        if token_list[number][1] == '(':
+            number = number + 1
+            if Expression(number):
+                if token_list[number][1] == ')':
+                    number = number + 1
+                    if token_list[number][1] == ';':
+                        number = number + 1
                         return True
                     else:
                         return False
@@ -395,10 +422,13 @@ def Scan(number):
     if switch == True:
         print("<Scan> -> scan ( <IDs> );")
     if token_list[number][1] == 'scan':
-        if token_list[number+1][1] == '(':
-            if IDs(number+2):
-                if token_list[number+3][1] == ')':
-                    if token_list[number+4][1] == ';':
+        if token_list[number][1] == '(':
+            number = number + 1
+            if IDs(number):
+                if token_list[number][1] == ')':
+                    number = number + 1
+                    if token_list[number][1] == ';':
+                        number = number + 1
                         return True
                     else:
                         return False
@@ -416,11 +446,15 @@ def While(number):
     if switch == True:
         print("while ( <Condition> ) <Statement> endwhile")
     if token_list[number][1] == 'while':
-        if token_list[number+1][1] == '(':
-            if CCondition(number+2):
-                if token_list[number+3][1] == ')':
-                    if Statement(number+4):
-                        if token_list[number+5][1] == 'endwhile':
+        number = number + 1
+        if token_list[number][1] == '(':
+            number = number + 1
+            if CCondition(number):
+                if token_list[number][1] == ')':
+                    number = number + 1
+                    if Statement(number):
+                        if token_list[number][1] == 'endwhile':
+                            number = number + 1
                             return True
                         else:
                             return False
@@ -440,8 +474,8 @@ def CCondition(number):
     if switch == True:
         print("<Condition> -> <Expression> <Relop> <Expression>")
     if Expression(number):
-        if Relop(number+1):
-            if Expression(number+2):
+        if Relop(number):
+            if Expression(number):
                 return True
             else:
                 return False
@@ -456,6 +490,7 @@ def Relop(number):
     if switch == True:
         print("<Relop> -> == | != | > | < | <= | =>")
     if (token == '==' or token == '!=' or token == '>' or token == '<' or token == '<=' or token == '=>'):
+        number = number + 1
         return True
     else:
         return False
@@ -465,7 +500,7 @@ def Expression(number):
     if switch == True:
         print("<Expression> -> <Term> <Expression>'")
     if Term(number):
-        if Expression_Dash(number+1):
+        if Expression_Dash(number):
             return True
         else:
             return False
@@ -477,7 +512,7 @@ def Term(number):
     if switch == True:
         print("<Term> -> <Factor> <Term>'")
     if Factor(number):
-        if Term_Dash(number+1):
+        if Term_Dash(number):
             return True
         else:
             return False
@@ -490,16 +525,18 @@ def Expression_Dash(number):
     if switch == True:
         print("<Expression>' -> + <Term> <Expression>' | - <Term> <Expression>' | ϵ")
     if token_list[number][1] == '+':
-        if Term(number+1):
-            if Expression_Dash(number+2):
+        number = number + 1
+        if Term(number):
+            if Expression_Dash(number):
                 return True
             else:
                 return False
         else:
             return False
     elif token_list[number][1] == '-':
-        if Term(number+1):
-            if Expression_Dash(number+2):
+        number = number + 1
+        if Term(number):
+            if Expression_Dash(number):
                 return True
             else:
                 return False
@@ -507,7 +544,6 @@ def Expression_Dash(number):
             return False
     else:
         #return False
-        number = number + 1
         return True
 
 # epsilon
@@ -516,16 +552,18 @@ def Term_Dash(number):
     if switch == True:
         print("<Term>' -> * <Factor> <Term>' | / <Factor> <Term>' | ϵ")
     if token_list[number][1] == '*':
-        if Factor(number+1):
-            if Term_Dash(number+2):
+        number = number + 1
+        if Factor(number):
+            if Term_Dash(number):
                 return True
             else:
                 return False
         else:
             return False
     elif token_list[number][1] == '/':
-        if Factor(number+1):
-            if Term_Dash(number+2):
+        number = number + 1
+        if Factor(number):
+            if Term_Dash(number):
                 return True
             else:
                 return False
@@ -533,7 +571,6 @@ def Term_Dash(number):
             return False
     else:
         #return False
-        number = number + 1
         return True
 
 def Factor(number):
@@ -541,7 +578,8 @@ def Factor(number):
     if switch == True:
         print("<Factor> -> - <Primary> | <Primary>")
     if token_list[number][1] == '-':
-        if Primary(number+1):
+        number = number + 1
+        if Primary(number):
             return True
         else:
             return False
@@ -555,13 +593,18 @@ def Primary(number):
     if switch == True:
         print("<Primary> -> <Identifier> | <Integer> | <Identifier> ( <IDs> ) | ( <Expression> ) | <Real> | true | false")
     if token_list[number][0] == 'id':
+        number = number + 1
         return True
     elif token_list[number][0] == 'integer':
+        number = number + 1
         return True
     elif token_list[number][0] == 'id':
-        if token_list[number+1][1] == '(':
-            if IDs(number+2):
-                if token_list[number+3][2] == ')':
+        number = number + 1
+        if token_list[number][1] == '(':
+            number = number + 1
+            if IDs(number):
+                if token_list[number][2] == ')':
+                    number = number + 1
                     return True
                 else:
                     return False
@@ -570,16 +613,20 @@ def Primary(number):
         else:
             return False
     elif token_list[number][1] == '(':
-        if Expression(number+1):
-            if token_list[number+2][1] == '(':
+        number = number + 1
+        if Expression(number):
+            if token_list[number][1] == '(':
+                number = number + 1
                 return True
             else:
                 return False
         else:
             return False
     elif token_list[number][1] == 'true':
+        number = number + 1
         return True
     elif token_list[number][1] == 'false':
+        number = number + 1
         return True
     else:
         return False
@@ -588,7 +635,6 @@ def EEmpty(number):
     print(number)
     if switch == True:
         print("<Empty> -> ϵ")
-    number = number + 1
     return True
 
 for token in lexical.tokenizer():
