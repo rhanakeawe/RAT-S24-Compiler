@@ -1,4 +1,5 @@
 import sys
+import warnings
 
 keyword = ["function","while","endwhile","if","endif","else","integer","boolean","real","return","print","scan","true","false"]
 operators = ["==","!=","<=","=>","+","-","/","=","<",">","*"]
@@ -18,6 +19,7 @@ def lexer(token):
         output = ["operator",token]
     else:
         output = ["invalid",token]
+        warnings.warn("Invalid token! : " + token)
     return output
 
 # Identifier Check
@@ -38,6 +40,7 @@ def id_state(token):
             output = ["id",token]
         else:
             output = ["invalid",token]
+            warnings.warn("Invalid token! : " + token)
     return output
 
 # Real or Integer Check
@@ -66,8 +69,10 @@ def num_state(token):
             output = ["integer",token]
         else:
             output = ["invalid",token]
+            warnings.warn("Invalid token! : " + token)
     else:
         output = ["invalid",token]
+        warnings.warn("Invalid token! : " + token)
     return output
 
 # The Start
