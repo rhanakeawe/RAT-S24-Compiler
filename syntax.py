@@ -6,56 +6,77 @@ token_list = []
 
 #has_invalid = False
 switch = True
+error_message_toggle = True
+
+def Error_Message(func_name, failure):
+    if error_message_toggle == True:
+        s = func_name + ": no " + failure + " | Token at: " + token_list[0]
+        print(s)
+
+
+def SyntaxLogger(syntax):
+    if switch == True:
+        print(syntax)
+
 
 def Rat24S():
-    if switch == True:
-        print("<Rat24S> -> $ <Opt Function Definitions> $ <Opt Declaration List> $ <Statement List> $")
+    SyntaxLogger("<Rat24S> -> $ <Opt Function Definitions> $ <Opt Declaration List> $ <Statement List> $")
     if token_list[0] == '$':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Opt_Function_Def()
-        if token_list[0] == '$':
-            print(lexical.lexer(token_list[0]))
-            token_list.pop(0)
-            Opt_Declaration_List()
+        if Opt_Function_Def():
             if token_list[0] == '$':
                 print(lexical.lexer(token_list[0]))
                 token_list.pop(0)
-                Statement_List()
-                if token_list[0] == '$':
-                    print(lexical.lexer(token_list[0]))
-                    token_list.pop(0)
-                    print("success")
+                if Opt_Declaration_List():
+                    if token_list[0] == '$':
+                        print(lexical.lexer(token_list[0]))
+                        token_list.pop(0)
+                        if Statement_List():
+                            if token_list[0] == '$':
+                                print(lexical.lexer(token_list[0]))
+                                token_list.pop(0)
+                                print("This has great grammar! Good job!")
+                            else:
+                                Error_Message("Rat24S","$ 4")
+                        else:
+                            Error_Message("Rat24S","Statement_List")
+                    else:
+                        Error_Message("Rat24S","$ 3")
                 else:
-                    print ("failed at fourth dollar")
+                    Error_Message("Rat24S","Opt_Declaration_List")
             else:
-                print ("failed at third dollar")
+                Error_Message("Rat24S","$ 2")
         else:
-            print ("failed at second dollar")
+            Error_Message("Rat24S","Opt_Function_Def")
     else:
-        print ("failed at first dollar")
+        Error_Message("Rat24S","$ 1")
                             
 
 def Opt_Function_Def():
-    if switch == True:
-        print("<Opt Function Definitions> -> <Function Definitions> | <Empty>")
+    SyntaxLogger("<Opt Function Definitions> -> <Function Definitions> | <Empty>")
     if Function_Def():
-        return
+        return True
     elif EEmpty():
-        return
+        return True
+    else:
+        Error_Message("Opt_Function_Def","Function_Def or EEmpty")
 
             
 def Function_Def():
-    if switch == True:
-        print("<Function Definitions> -> <Function> <Function Definitions>'")
-    FFunction()
-    Function_Def_Dash()
+    SyntaxLogger("<Function Definitions> -> <Function> <Function Definitions>'")
+    if FFunction():
+        if Function_Def_Dash():
+            return True
+        else:
+            Error_Message("Function_Def","Function_Def_Dash")
+    else:
+        Error_Message("Function_Def","FFunction")
 
 
 # epsilon
 def Function_Def_Dash():
-    if switch == True:
-        print("<Function Definitions>' -> <Function Definitions> | ϵ")
+    SyntaxLogger("<Function Definitions>' -> <Function Definitions> | ϵ")
     if Function_Def():
         return True
     else:
@@ -63,8 +84,7 @@ def Function_Def_Dash():
 
 
 def FFunction():
-    if switch == True:
-        print("<Function> -> function <Identifier> ( <Opt Parameter List> ) <Opt Declaration List> <Body>")
+    SyntaxLogger("<Function> -> function <Identifier> ( <Opt Parameter List> ) <Opt Declaration List> <Body>")
     if token_list[0] == 'function':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
@@ -74,92 +94,114 @@ def FFunction():
             if (token_list[0]) == '(':
                 print(lexical.lexer(token_list[0]))
                 token_list.pop(0)
-                Opt_Parameter_List()
-                if token_list[0] == ')':
-                    print(lexical.lexer(token_list[0]))
-                    token_list.pop(0)
-                    Opt_Declaration_List()
-                    Body()
+                if Opt_Parameter_List():
+                    if token_list[0] == ')':
+                        print(lexical.lexer(token_list[0]))
+                        token_list.pop(0)
+                        if Opt_Declaration_List():
+                            if Body():
+                                return True
+                            else:
+                                Error_Message("FFunction","Body")
+                        else:
+                            Error_Message("FFunction","Opt_Declaration_List")
+                    else:
+                        Error_Message("FFunction",")")
+                else:
+                    Error_Message("FFunction","Opt_Declaration_List")
+            else:
+                Error_Message("FFunction","(")
+        else:
+            Error_Message("FFunction","id")
+    else:
+        Error_Message("FFunction","function")
 
 
 def Opt_Parameter_List():
-    if switch == True:
-        print("<Opt Parameter List> -> <Parameter List> | <Empty>")
+    SyntaxLogger("<Opt Parameter List> -> <Parameter List> | <Empty>")
     if Parameter_List():
-        return
+        return True
     elif EEmpty():
-        return
+        return True
 
 
 def Parameter_List():
-    if switch == True:
-        print("<Parameter List> -> <Parameter> <Parameter List>'")
-    PParameter()
-    Parameter_List_Dash()
+    SyntaxLogger("<Parameter List> -> <Parameter> <Parameter List>'")
+    if PParameter():
+        if Parameter_List_Dash():
+            return True
 
 
 def PParameter():
-    if switch == True:
-        print("<Parameter> -> <IDs> <Qualifier>")
-    IDs()
-    Qualifier()
+    SyntaxLogger("<Parameter> -> <IDs> <Qualifier>")
+    if IDs():
+        if Qualifier():
+            return True
 
 
 # epsilon
 def Parameter_List_Dash():
-    if switch == True:
-        print("<Parameter List>' -> , <Parameter List> | ϵ")
+    SyntaxLogger("<Parameter List>' -> , <Parameter List> | ϵ")
     if token_list[0] == ',':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Parameter_List()
+        if Parameter_List():
+            return  True
     else:
         return True
 
 
 def Qualifier():
-    if switch == True:
-        print("<Qualifier> -> integer | boolean | real")
+    SyntaxLogger("<Qualifier> -> integer | boolean | real")
     if token_list[0] == 'integer' or token_list[0] == 'real' or token_list[0] == 'boolean':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
+        return True
+    else:
+        Error_Message("Qualifier", "integer or real or boolean")
 
 
 def Body():
-    if switch == True:
-        print("<Body> -> { <Statement List> }")
+    SyntaxLogger("<Body> -> { <Statement List> }")
     if token_list[0] == '{':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Statement_List()
-        if token_list[0] == '}':
-            print(lexical.lexer(token_list[0]))
-            token_list.pop(0)
+        if Statement_List():
+            if token_list[0] == '}':
+                print(lexical.lexer(token_list[0]))
+                token_list.pop(0)
+                return True
 
 
 def Opt_Declaration_List():
-    if switch == True:
-        print("<Opt Declaration List> -> <Declaration List> | <Empty>")
+    SyntaxLogger("<Opt Declaration List> -> <Declaration List> | <Empty>")
     if Declaration_List():
         return True
     elif EEmpty():
         return True
+    else:
+        Error_Message("Opt_Declaration_List","Declaration_List or EEmpty")
 
 
 def Declaration_List():
-    if switch == True:
-        print("<Declaration List> -> <Declaration>; <Declaration List>'")
-    Declaration()
-    if token_list[0] == ';':
-        print(lexical.lexer(token_list[0]))
-        token_list.pop(0)
-        Declaration_List_Dash()
+    SyntaxLogger("<Declaration List> -> <Declaration>; <Declaration List>'")
+    if Declaration():
+        if token_list[0] == ';':
+            print(lexical.lexer(token_list[0]))
+            token_list.pop(0)
+            if Declaration_List_Dash():
+                return True
+            else:
+                Error_Message("Declaration_List","Declaration_List_Dash")
+        else:
+            Error_Message("Declaration_List",";")
+    else:
+        Error_Message("Declaration_List","Declaration")
 
 
 # epsilon
 def Declaration_List_Dash():
-    if switch == True:
-        print("<Declaration List>' -> <Declaration List> | ϵ")
+    SyntaxLogger("<Declaration List>' -> <Declaration List> | ϵ")
     if Declaration_List():
         return True
     else:
@@ -167,44 +209,51 @@ def Declaration_List_Dash():
 
 
 def Declaration():
-    if switch == True:
-        print("<Declaration> -> <Qualifier> <IDs>")
-    Qualifier()
-    IDs()
+    SyntaxLogger("<Declaration> -> <Qualifier> <IDs>")
+    if Qualifier():
+        if IDs():
+            return True
+        else:
+            Error_Message("Declaration","IDs")
+    else:
+        Error_Message("Declaration","Qualifier")
 
 
 def IDs():
-    if switch == True:
-        print("<IDs> -> <Identifier> <IDs>'")
+    SyntaxLogger("<IDs> -> <Identifier> <IDs>'")
     if lexical.lexer(token_list[0])[0] == 'id':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        IDs_Dash()
+        if IDs_Dash():
+            return True
 
 
 # epsilon
 def IDs_Dash():
-    if switch == True:
-        print("<IDs>' -> , <IDs> | ϵ")
+    SyntaxLogger("<IDs>' -> , <IDs> | ϵ")
     if token_list[0] == ',':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        IDs()
+        if IDs():
+            return True
     else:
         return True
 
 
 def Statement_List():
-    if switch == True:
-        print("<Statement List> -> <Statement> <Statement List>'")
-    Statement()
-    Statement_List_Dash()
+    SyntaxLogger("<Statement List> -> <Statement> <Statement List>'")
+    if Statement():
+        if Statement_List_Dash():
+            return True
+        else:
+            Error_Message("Statement_List","Statement_List_Dash")
+    else:
+        Error_Message("Statement_List","Statement")
 
 
 # epsilon
 def Statement_List_Dash():
-    if switch == True:
-        print("<Statement List>' -> <Statement List> | ϵ")
+    SyntaxLogger("<Statement List>' -> <Statement List> | ϵ")
     if Statement_List():
         return True
     else:
@@ -212,39 +261,45 @@ def Statement_List_Dash():
 
 
 def Statement():
-    if switch == True:
-        print("<Statement> -> <Compound> | <Assign> | <If> | <Return> | <Print> | <Scan> | <While>")
+    SyntaxLogger("<Statement> -> <Compound> | <Assign> | <If> | <Return> | <Print> | <Scan> | <While>")
     if Compound():
-        return
+        return True
     elif Assign():
-        return
+        return True
     elif IIf():
-        return
+        return True
     elif RReturn():
-        return
+        return True
     elif PPrint():
-        return
+        return True
     elif Scan():
-        return
+        return True
     elif While():
-        return
+        return True
+    else:
+        Error_Message("Statement","Compound etc")
 
 
 def Compound():
-    if switch == True:
-        print("<Compound> -> { <Statement List> }")
+    SyntaxLogger("<Compound> -> { <Statement List> }")
     if token_list[0] == '{':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Statement_List()
-        if token_list[0] == '}':
-            print(lexical.lexer(token_list[0]))
-            token_list.pop(0)
+        if Statement_List():
+            if token_list[0] == '}':
+                print(lexical.lexer(token_list[0]))
+                token_list.pop(0)
+                return True
+            else:
+                Error_Message("Compound","}")
+        else:
+            Error_Message("Compound","Statement_List")
+    else:
+        Error_Message("Compound","{")
 
 
 def Assign():
-    if switch == True:
-        print("<Assign> -> <Identifier> = <Expression> ;")
+    SyntaxLogger("<Assign> -> <Identifier> = <Expression> ;")
     if lexical.lexer(token_list[0])[0] == 'id':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
@@ -255,80 +310,105 @@ def Assign():
             if token_list[0] == ';':
                 print(lexical.lexer(token_list[0]))
                 token_list.pop(0)
+                return True
 
 
 def IIf():
-    if switch == True:
-        print("<If> -> if ( <Condition> ) <Statement> <If>'")
+    SyntaxLogger("<If> -> if ( <Condition> ) <Statement> <If>'")
     if token_list[0] == 'if':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
         if token_list[0] == '(':
             print(lexical.lexer(token_list[0]))
             token_list.pop(0)
-            CCondition()
-            if token_list[0] == ')':
-                print(lexical.lexer(token_list[0]))
-                token_list.pop(0)
-                Statement()
-                IIf_Dash()
+            if CCondition():
+                if token_list[0] == ')':
+                    print(lexical.lexer(token_list[0]))
+                    token_list.pop(0)
+                    if Statement():
+                        if IIf_Dash():
+                            return True
         
 def IIf_Dash():
-    if switch == True:
-        print("<If>' -> endif | else <Statement> endif")
+    SyntaxLogger("<If>' -> endif | else <Statement> endif")
     if token_list[0] == 'endif':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
     elif token_list[0] == 'else':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Statement()
-        if token_list[0] == 'endif':
-            print(lexical.lexer(token_list[0]))
-            token_list.pop(0)
+        if Statement():
+            if token_list[0] == 'endif':
+                print(lexical.lexer(token_list[0]))
+                token_list.pop(0)
+                return True
+            else:
+                Error_Message("IIf_Dash","endif")
+        else:
+            Error_Message("IIf_Dash","Statement")
+    else:
+        Error_Message("IIf_Dash","else")
 
 def RReturn():
-    if switch == True:
-        print("<Return> -> return <Return>'")
+    SyntaxLogger("<Return> -> return <Return>'")
     if token_list[0] == 'return':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        RReturn_Dash()
+        if RReturn_Dash():
+            return True
+        else:
+            Error_Message("IIf_Dash","RReturn_Dash")
+    else:
+        Error_Message("IIf_Dash","return")
 
 
 def RReturn_Dash():
-    if switch == True:
-        print("<Return>' -> ; | <Expression> ;")
+    SyntaxLogger("<Return>' -> ; | <Expression> ;")
     if token_list[0] == ';':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
+        return True
     elif Expression():
         if token_list[0] == ';':
             print(lexical.lexer(token_list[0]))
             token_list.pop(0)
+            return True
+        else:
+            Error_Message("IIf_Dash",";")
+    else:
+        Error_Message("IIf_Dash","Expression")
 
 
 def PPrint():
-    if switch == True:
-        print("<Print> -> print ( <Expression> );")
+    SyntaxLogger("<Print> -> print ( <Expression> );")
     if token_list[0] == 'print':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
         if token_list[0] == '(':
             print(lexical.lexer(token_list[0]))
             token_list.pop(0)
-            Expression()
-            if token_list[0] == ')':
-                print(lexical.lexer(token_list[0]))
-                token_list.pop(0)
-                if token_list[0] == ';':
+            if Expression():
+                if token_list[0] == ')':
                     print(lexical.lexer(token_list[0]))
                     token_list.pop(0)
+                    if token_list[0] == ';':
+                        print(lexical.lexer(token_list[0]))
+                        token_list.pop(0)
+                        return True
+                    else:
+                        Error_Message("PPrint",";")
+                else:
+                    Error_Message("PPrint",")")
+            else:
+                Error_Message("PPrint","Expression")
+        else:
+            Error_Message("PPrint","(")
+    else:
+        Error_Message("PPrint","print")
 
 
 def Scan():
-    if switch == True:
-        print("<Scan> -> scan ( <IDs> );")
+    SyntaxLogger("<Scan> -> scan ( <IDs> );")
     if token_list[0] == 'scan':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
@@ -342,11 +422,11 @@ def Scan():
                 if token_list[0] == ';':
                     print(lexical.lexer(token_list[0]))
                     token_list.pop(0)
+                    return True
 
 
 def While():
-    if switch == True:
-        print("<While> -> while ( <Condition> ) <Statement> endwhile")
+    SyntaxLogger("<While> -> while ( <Condition> ) <Statement> endwhile")
     if token_list[0] == 'while':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
@@ -361,132 +441,162 @@ def While():
                 if token_list[0] == 'endwhile':
                     print(lexical.lexer(token_list[0]))
                     token_list.pop(0)
+                    return True
 
 
 def CCondition():
-    if switch == True:
-        print("<Condition> -> <Expression> <Relop> <Expression>")
-    Expression()
-    Relop()
-    Expression()
+    SyntaxLogger("<Condition> -> <Expression> <Relop> <Expression>")
+    if Expression():
+        if Relop():
+            if Expression():
+                return True
+            else:
+                Error_Message("CCondition","Expression 2")
+        else:
+            Error_Message("CCondition","Relop")
+    else:
+        Error_Message("CCondition","Expression 1")
 
 
 def Relop():
-    if switch == True:
-        print("<Relop> -> == | != | > | < | <= | =>")
+    SyntaxLogger("<Relop> -> == | != | > | < | <= | =>")
     if token_list[0] == '==' or token_list[0] == '!=' or token_list[0] == '>' or token_list[0] == '<' or token_list[0] == '<=' or token_list[0] == '=>':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
+        return True
 
 
 def Expression():
-    if switch == True:
-        print("<Expression> -> <Term> <Expression>'")
-    Term()
-    Expression_Dash()
+    SyntaxLogger("<Expression> -> <Term> <Expression>'")
+    if Term():
+        if Expression_Dash():
+            return True
+        else:
+            Error_Message("Expression","Expression_Dash")
+    else:
+        Error_Message("Expression","Term")
 
 
 def Term():
-    if switch == True:
-        print("<Term> -> <Factor> <Term>'")
-    Factor()
-    Term_Dash()
+    SyntaxLogger("<Term> -> <Factor> <Term>'")
+    if Factor():
+        if Term_Dash():
+            return True
+        else:
+            Error_Message("Term","Term_Dash")
+    else:
+        Error_Message("Term","Factor")
 
 
 # epsilon
 def Expression_Dash():
-    if switch == True:
-        print("<Expression>' -> + <Term> <Expression>' | - <Term> <Expression>' | ϵ")
+    SyntaxLogger("<Expression>' -> + <Term> <Expression>' | - <Term> <Expression>' | ϵ")
     if token_list[0] == '+':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Term()
-        Expression_Dash()
+        if Term():
+            if Expression_Dash():
+                return True
+            else:
+                Error_Message("Expression_Dash","Expression_Dash")
+        else:
+            Error_Message("Expression_Dash","Term")
     elif token_list[0] == '-':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Term()
-        Expression_Dash()
+        if Term():
+            if Expression_Dash():
+                return True
+            else:
+                Error_Message("Expression_Dash","Expression_Dash 2")
+        else:
+            Error_Message("Expression_Dash","Term 2")
     else:
         return True
 
 
 # epsilon
 def Term_Dash():
-    if switch == True:
-        print("<Term>' -> * <Factor> <Term>' | / <Factor> <Term>' | ϵ")
+    SyntaxLogger("<Term>' -> * <Factor> <Term>' | / <Factor> <Term>' | ϵ")
     if token_list[0] == '*':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Factor()
-        Term_Dash()
+        if Factor():
+            if Term_Dash():
+                return True
     elif token_list[0] == '/':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Factor()
-        Term_Dash()
+        if Factor():
+            if Term_Dash():
+                return True
     else:
         return True
 
 
 def Factor():
-    if switch == True:
-        print("<Factor> -> - <Primary> | <Primary>")
+    SyntaxLogger("<Factor> -> - <Primary> | <Primary>")
     if token_list[0] == '-':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Primary()
-        return
+        if Primary():
+            return True
     elif Primary():
-        return
+        return True
+    else:
+        Error_Message("Factor","- or Primary")
 
 
 def Primary():
-    if switch == True:
-        print("<Primary> -> <Identifier> <Primary>' | <Integer> | ( <Expression> ) | <Real> | true | false")
+    SyntaxLogger("<Primary> -> <Identifier> <Primary>' | <Integer> | ( <Expression> ) | <Real> | true | false")
     if lexical.lexer(token_list[0])[0] == 'id':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Primary_Dash()
+        if Primary_Dash():
+            return True
     elif lexical.lexer(token_list[0])[0] == 'integer':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
+        return True
     elif token_list[0] == '(':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        Expression()
-        if token_list[0] == ')':
-            print(lexical.lexer(token_list[0]))
-            token_list.pop(0)
+        if Expression():
+            if token_list[0] == ')':
+                print(lexical.lexer(token_list[0]))
+                token_list.pop(0)
+                return True
     elif lexical.lexer(token_list[0])[0] == 'real':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
+        return True
     elif token_list[0] == 'true':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
+        return True
     elif token_list[0] == 'false':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
+        return True
 
 # epsilon
 def Primary_Dash():
-    if switch == True:
-        print("<Primary>' -> ( <IDs> ) | ϵ")
+    SyntaxLogger("<Primary>' -> ( <IDs> ) | ϵ")
     if token_list[0] == '(':
         print(lexical.lexer(token_list[0]))
         token_list.pop(0)
-        IDs()
-        if token_list[0] == ')':
-            print(lexical.lexer(token_list[0]))
-            token_list.pop(0)
+        if IDs():
+            if token_list[0] == ')':
+                print(lexical.lexer(token_list[0]))
+                token_list.pop(0)
+                return True
     else:
         return True
         
 
 
 def EEmpty():
-    if switch == True:
-        print("<Empty> -> ϵ")
+    SyntaxLogger("<Empty> -> ϵ")
     return True
 
 
