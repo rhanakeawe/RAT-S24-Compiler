@@ -5,7 +5,7 @@ keyword = ["function","while","endwhile","if","endif","else","integer","boolean"
 operators = ["==","!=","<=","=>","+","-","/","=","<",">","*"]
 seperators = ["(",")","{","}",",",";","$"]
 
-# The Analyzer
+# The Lexical Analyzer
 def lexer(token):
     if token[0].isalpha():
         output = id_state(token)
@@ -75,11 +75,10 @@ def num_state(token):
         warnings.warn("Invalid token! : " + token)
     return output
 
-# The Start
-# Copying from file to string
+# The Tokenizer
 def tokenizer():
     lines = ""
-    with open(str(sys.argv[1]),'r') as input_file:
+    with open(str(sys.argv[1]),'r', encoding="utf-8") as input_file:
         for x in input_file:
             lines += x
     input_file.close()

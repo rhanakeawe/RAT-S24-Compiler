@@ -1,8 +1,38 @@
-import pathlib
 import lexical
+import pathlib
 import sys
 
 token_list = []
+
+# "Address", "Operator","Operand"
+#  1          PUSHM      5001
+
+instruction_table = []
+symbol_table = []
+
+memory_address = 5000
+
+def Terminate_Lexer():
+    print('―' * 100,file=output_file)
+    print(lexical.lexer(token_list[0]),file=output_file)
+    print('―' * 100,file=output_file)
+    token_list.pop(0)
+
+def get_Address(token):
+    return instruction_table.index(token)
+
+def generate_instruction(op, oprnd):
+    global memory_address
+    instruction_table.append([memory_address, op, oprnd])
+    memory_address += 1
+
+def pop_jumpstack():
+    # something idk
+    instruction_table[0][2]
+
+def back_patch(jump_address):
+    addr = pop_jumpstack()
+    instruction_table[addr][2] = jump_address
 
 # Toggles
 switch = True
@@ -58,7 +88,7 @@ def Rat24S():
     else:
         Missing_Message("Rat24S","$ 1")
                             
-
+# no change
 def Opt_Function_Def():
     SyntaxLogger("<Opt Function Definitions> -> <Function Definitions> | <Empty>")
     if Function_Def():
@@ -68,7 +98,7 @@ def Opt_Function_Def():
     else:
         Missing_Message("Opt_Function_Def","Function_Def or EEmpty")
 
-            
+# no change      
 def Function_Def():
     SyntaxLogger("<Function Definitions> -> <Function> <Function Definitions>'")
     if FFunction():
@@ -79,7 +109,7 @@ def Function_Def():
     else:
         Missing_Message("Function_Def","FFunction")
 
-
+# no change
 # epsilon
 def Function_Def_Dash():
     SyntaxLogger("<Function Definitions>' -> <Function Definitions> | ϵ")
@@ -88,7 +118,7 @@ def Function_Def_Dash():
     else:
         return True
 
-
+# no change
 def FFunction():
     SyntaxLogger("<Function> -> function <Identifier> ( <Opt Parameter List> ) <Opt Declaration List> <Body>")
     if token_list[0] == 'function':
@@ -118,7 +148,7 @@ def FFunction():
     else:
         Missing_Message("FFunction","function")
 
-
+# no change
 def Opt_Parameter_List():
     SyntaxLogger("<Opt Parameter List> -> <Parameter List> | <Empty>")
     if Parameter_List():
@@ -126,7 +156,7 @@ def Opt_Parameter_List():
     elif EEmpty():
         return True
 
-
+# no change
 def Parameter_List():
     SyntaxLogger("<Parameter List> -> <Parameter> <Parameter List>'")
     if PParameter():
@@ -137,7 +167,7 @@ def Parameter_List():
     else:
         Missing_Message("Parameter_List","PParameter")
 
-
+# no change
 def PParameter():
     SyntaxLogger("<Parameter> -> <IDs> <Qualifier>")
     if IDs():
@@ -148,7 +178,7 @@ def PParameter():
     else:
         Missing_Message("PParameter","IDs")
 
-
+# no change
 # epsilon
 def Parameter_List_Dash():
     SyntaxLogger("<Parameter List>' -> , <Parameter List> | ϵ")
@@ -161,7 +191,7 @@ def Parameter_List_Dash():
     else:
         return True
 
-
+# no change
 def Qualifier():
     SyntaxLogger("<Qualifier> -> integer | boolean | real")
     if token_list[0] == 'integer' or token_list[0] == 'real' or token_list[0] == 'boolean':
@@ -170,7 +200,7 @@ def Qualifier():
     else:
         Missing_Message("Qualifier", "integer or real or boolean")
 
-
+# no change
 def Body():
     SyntaxLogger("<Body> -> { <Statement List> }")
     if token_list[0] == '{':
