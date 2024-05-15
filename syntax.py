@@ -1,5 +1,5 @@
 import pathlib
-import lexical
+import lexical_3 as lexical
 import sys
 
 token_list = []

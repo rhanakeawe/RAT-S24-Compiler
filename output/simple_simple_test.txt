@@ -1,0 +1,68 @@
+=================
+Instruction Table
+=================
+1 .    PUSHI       10
+2 .     POPM     5000
+3 .    PUSHM     5000
+4 .    PUSHI        1
+5 .        A         
+6 .     POPM     5001
+7 .    PUSHM     5000
+8 .    PUSHI       10
+9 .        D         
+10 .     POPM     5002
+11 .    PUSHM     5001
+12 .    PUSHM     5002
+13 .        M         
+14 .     POPM     5003
+15 .    PUSHM     5003
+16 .    PUSHM     5002
+17 .      GEQ         
+18 .    JUMP0         
+19 .    PUSHI      100
+20 .     POPM     5004
+21 .    PUSHM     5000
+22 .     SOUT         
+23 .    PUSHM     5001
+24 .     SOUT         
+25 .    PUSHM     5002
+26 .     SOUT         
+27 .    PUSHM     5003
+28 .     SOUT         
+29 .    PUSHM     5004
+30 .     SOUT         
+31 .    LABEL         
+32 .    PUSHM     5000
+33 .    PUSHM     5004
+34 .      LEQ         
+35 .    JUMP0       41
+36 .    PUSHM     5000
+37 .    PUSHM     5001
+38 .        A         
+39 .     POPM     5000
+40 .     JUMP       31
+41 .    PUSHM     5000
+42 .    PUSHM     5004
+43 .      EQU         
+44 .    JUMP0         
+45 .    PUSHM     5000
+46 .    PUSHM     5001
+47 .        A         
+48 .    PUSHM     5002
+49 .        A         
+50 .    PUSHM     5003
+51 .        A         
+52 .    PUSHM     5004
+53 .        A         
+54 .     SOUT         
+
+=============
+Symbol Table
+=============
+Identifier   MemoryLocation   Type
+
+       a          5000      integer
+       b          5001      integer
+       c          5002      integer
+       d          5003      integer
+       e          5004      integer

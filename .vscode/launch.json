@@ -11,7 +11,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["test_2.txt"]
+            "args": ["simple_test.txt"]
         }
     ]
 }

@@ -1,0 +1,23 @@
+$
+$
+    integer a, b, c, d, e;
+$
+    a = 10;
+    b = a + 1;
+    c = a / 10;
+    d = b * c;
+    if ( d => c ) {e = 100;} endif
+    print ( a );
+    print ( b );
+    print ( c );
+    print ( d );
+    print ( e );
+    while ( a <= e ) {
+        a = a + b;
+    }
+    endwhile
+    if ( a == e ) {
+        print (a + b + c + d + e);
+    }
+    endif
+$

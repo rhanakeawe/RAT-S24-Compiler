@@ -1,42 +1,75 @@
-import lexical
+import lexical_3 as lexical
 import pathlib
 import sys
 
 token_list = []
 
+# Toggles
+switch = False
+error_message_toggle = True
+
+instruction_table = []
+#              [0]        [1]
 # "Address", "Operator","Operand"
 #  1          PUSHM      5001
 
-instruction_table = []
 symbol_table = []
+#   [0]              [1]            [2]
+# "Identifier", "MemoryLocation", "Type"
+#   max             5000              integer
 
+jump_stack = []
+
+instr_address = 1
 memory_address = 5000
+symbol_type = ''
 
-def Terminate_Lexer():
-    print('―' * 100,file=output_file)
-    print(lexical.lexer(token_list[0]),file=output_file)
-    print('―' * 100,file=output_file)
-    token_list.pop(0)
+def change_type():
+    global symbol_type
+    symbol_type = token_list[0]
+
+def insert_symbol():
+    global memory_address
+    if not any(token_list[0] in symbol for symbol in symbol_table):
+        symbol_table.append([token_list[0], memory_address, symbol_type])
+        memory_address += 1
+    else:
+        print(f"{token_list[0]} is already in symbol table!")
+
+def print_instruction():
+    print("=================\nInstruction Table\n=================",file=output_file)
+    for number, instructions in enumerate(instruction_table):
+        if instructions[1] == 'nil':
+            instructions[1] = ''
+        print(number+1,".","{: >8} {: >8}".format(*instructions),file=output_file)
+
+def print_symbol():
+    print("\n=============\nSymbol Table\n=============",file=output_file)
+    print("Identifier   MemoryLocation   Type\n",file=output_file)
+    for symbol in symbol_table:
+        print("{: >8} {: >13} {: >12}".format(*symbol),file=output_file)
 
 def get_Address(token):
-    return instruction_table.index(token)
+    for symbol in symbol_table:
+        if token == symbol[0]:
+            return symbol[1]
 
 def generate_instruction(op, oprnd):
-    global memory_address
-    instruction_table.append([memory_address, op, oprnd])
-    memory_address += 1
+    global instr_address
+    instruction_table.append([op, oprnd])
+    instr_address += 1
+
+def push_jumpstack(jump_address):
+    jump_stack.append(jump_address)
 
 def pop_jumpstack():
-    # something idk
-    instruction_table[0][2]
+    out = jump_stack[-1]
+    jump_stack.pop()
+    return out
 
 def back_patch(jump_address):
     addr = pop_jumpstack()
-    instruction_table[addr][2] = jump_address
-
-# Toggles
-switch = True
-error_message_toggle = False
+    instruction_table[addr-1][1] = jump_address
 
 # Prints fails to terminal
 def Missing_Message(func_name, failure):
@@ -51,9 +84,9 @@ def SyntaxLogger(syntax):
 
 # Prints Lexical analysis and Pops token from list
 def Terminate_Lexer():
-    print('―' * 100,file=output_file)
-    print(lexical.lexer(token_list[0]),file=output_file)
-    print('―' * 100,file=output_file)
+    #print('―' * 100,file=output_file)
+    #print(lexical.lexer(token_list[0]),file=output_file)
+    #print('―' * 100,file=output_file)
     token_list.pop(0)
 
 ### Check the "SyntaxLogger()" at the begging of each function for what it does
@@ -87,6 +120,8 @@ def Rat24S():
             Missing_Message("Rat24S","Opt_Function_Def")
     else:
         Missing_Message("Rat24S","$ 1")
+    print_instruction()
+    print_symbol()
                             
 # no change
 def Opt_Function_Def():
@@ -194,9 +229,13 @@ def Parameter_List_Dash():
 # no change
 def Qualifier():
     SyntaxLogger("<Qualifier> -> integer | boolean | real")
-    if token_list[0] == 'integer' or token_list[0] == 'real' or token_list[0] == 'boolean':
+    if token_list[0] == 'integer' or token_list[0] == 'boolean':
+        change_type()
         Terminate_Lexer()
         return True
+    elif token_list[0] == 'real':
+        print("Real is not allowed! Exiting")
+        exit()
     else:
         Missing_Message("Qualifier", "integer or real or boolean")
 
@@ -265,6 +304,7 @@ def Declaration():
 def IDs():
     SyntaxLogger("<IDs> -> <Identifier> <IDs>'")
     if lexical.lexer(token_list[0])[0] == 'id':
+        insert_symbol()
         Terminate_Lexer()
         if IDs_Dash():
             return True
@@ -344,10 +384,12 @@ def Compound():
 def Assign():
     SyntaxLogger("<Assign> -> <Identifier> = <Expression> ;")
     if lexical.lexer(token_list[0])[0] == 'id':
+        save = token_list[0]
         Terminate_Lexer()
         if token_list[0] == '=':
             Terminate_Lexer()
             if Expression():
+                generate_instruction('POPM',get_Address(save))
                 if token_list[0] == ';':
                     Terminate_Lexer()
                     return True
@@ -393,6 +435,7 @@ def IIf_Dash():
     elif token_list[0] == 'else':
         Terminate_Lexer()
         if Statement():
+            back_patch(instr_address)
             if token_list[0] == 'endif':
                 Terminate_Lexer()
                 return True
@@ -437,6 +480,7 @@ def PPrint():
         if token_list[0] == '(':
             Terminate_Lexer()
             if Expression():
+                generate_instruction('SOUT', 'nil')
                 if token_list[0] == ')':
                     Terminate_Lexer()
                     if token_list[0] == ';':
@@ -460,6 +504,8 @@ def Scan():
         Terminate_Lexer()
         if token_list[0] == '(':
             Terminate_Lexer()
+            generate_instruction('SIN', 'nil')
+            generate_instruction('POPM', get_Address(token_list[0]))
             if IDs():
                 if token_list[0] == ')':
                     Terminate_Lexer()
@@ -481,6 +527,8 @@ def Scan():
 def While():
     SyntaxLogger("<While> -> while ( <Condition> ) <Statement> endwhile")
     if token_list[0] == 'while':
+        Ar = instr_address
+        generate_instruction('LABEL','nil')
         Terminate_Lexer()
         if token_list[0] == '(':
             Terminate_Lexer()
@@ -488,6 +536,8 @@ def While():
                 if token_list[0] == ')':
                     Terminate_Lexer()
                     if Statement():
+                        generate_instruction('JUMP',Ar)
+                        back_patch(instr_address)
                         if token_list[0] == 'endwhile':
                             Terminate_Lexer()
                             return True
@@ -504,12 +554,38 @@ def While():
     else:
         Missing_Message("While","while")
 
-
+# apart of while
 def CCondition():
     SyntaxLogger("<Condition> -> <Expression> <Relop> <Expression>")
     if Expression():
+        op = token_list[0]
         if Relop():
             if Expression():
+                match op:
+                    case '<':
+                        generate_instruction('LES','nil')
+                        push_jumpstack(instr_address)
+                        generate_instruction('JUMP0','nil')
+                    case '>':
+                        generate_instruction('GRT','nil')
+                        push_jumpstack(instr_address)
+                        generate_instruction('JUMP0','nil')
+                    case '==':
+                        generate_instruction('EQU','nil')
+                        push_jumpstack(instr_address)
+                        generate_instruction('JUMP0','nil')
+                    case '!=':
+                        generate_instruction('NEQ','nil')
+                        push_jumpstack(instr_address)
+                        generate_instruction('JUMP0','nil')
+                    case '=>':
+                        generate_instruction('GEQ','nil')
+                        push_jumpstack(instr_address)
+                        generate_instruction('JUMP0','nil')
+                    case '<=':
+                        generate_instruction('LEQ','nil')
+                        push_jumpstack(instr_address)
+                        generate_instruction('JUMP0','nil')
                 return True
             else:
                 Missing_Message("CCondition","Expression 2")
@@ -518,7 +594,7 @@ def CCondition():
     else:
         Missing_Message("CCondition","Expression 1")
 
-
+# apart of while
 def Relop():
     SyntaxLogger("<Relop> -> == | != | > | < | <= | =>")
     if token_list[0] == '==' or token_list[0] == '!=' or token_list[0] == '>' or token_list[0] == '<' or token_list[0] == '<=' or token_list[0] == '=>':
@@ -556,6 +632,7 @@ def Expression_Dash():
     if token_list[0] == '+':
         Terminate_Lexer()
         if Term():
+            generate_instruction('A','nil')
             if Expression_Dash():
                 return True
             else:
@@ -581,6 +658,7 @@ def Term_Dash():
     if token_list[0] == '*':
         Terminate_Lexer()
         if Factor():
+            generate_instruction('M','nil')
             if Term_Dash():
                 return True
             else:
@@ -590,6 +668,7 @@ def Term_Dash():
     elif token_list[0] == '/':
         Terminate_Lexer()
         if Factor():
+            generate_instruction('D','nil')
             if Term_Dash():
                 return True
             else:
@@ -615,10 +694,12 @@ def Factor():
 def Primary():
     SyntaxLogger("<Primary> -> <Identifier> <Primary>' | <Integer> | ( <Expression> ) | <Real> | true | false")
     if lexical.lexer(token_list[0])[0] == 'id':
+        generate_instruction('PUSHM', get_Address(token_list[0]))
         Terminate_Lexer()
         if Primary_Dash():
             return True
     elif lexical.lexer(token_list[0])[0] == 'integer':
+        generate_instruction('PUSHI', token_list[0])
         Terminate_Lexer()
         return True
     elif token_list[0] == '(':
@@ -628,8 +709,8 @@ def Primary():
                 Terminate_Lexer()
                 return True
     elif lexical.lexer(token_list[0])[0] == 'real':
-        Terminate_Lexer()
-        return True
+        print("Real not allowed! Exiting")
+        exit()
     elif token_list[0] == 'true':
         Terminate_Lexer()
         return True
@@ -670,7 +751,7 @@ path.mkdir(parents=True,exist_ok=True)
 
 output = str(sys.argv[1])
 output = output.replace('.txt','')
-output_syntax = "./output/syntax_" + output + ".txt"
+output_syntax = "./output/simple_" + output + ".txt"
 with open(output_syntax,'w', encoding="utf-8") as output_file:
     Rat24S()
 output_file.close()
